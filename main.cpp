@@ -4,14 +4,26 @@
 #include "RegexFSM.h"
 #include "states.h"
 
-int main() {
-	std::string pattern = "a*4.+hi";
+int main(int argc, char* argv[]) {
+    if (argc < 3) {
+        std::cerr << "Not enough arguments!\n";
+        std::cerr << "Usage: <program_name> <regex> <str1> <str2> ... <strN>\n";
+        return 1;
+    }
 
-	RegexFSM regexFSM(pattern);
+    std::string pattern = argv[1];
 
-	std::cout << regexFSM.checkString("aaaaaa4uhi") << '\n';
-	std::cout << regexFSM.checkString("4uhi") << '\n';
-	std::cout << regexFSM.checkString("meow") << '\n';
+    std::vector<std::string> strings;
+    for (int i = 2; i < argc; ++i) {
+        strings.push_back(argv[i]);
+    }
 
-	return 0;
+    RegexFSM regexFSM(pattern);
+
+    for (const auto& str : strings) {
+        std::cout << "Checking \"" << str << "\": "
+            << (regexFSM.checkString(str) ? "Matched" : "Not matched") << '\n';
+    }
+
+    return 0;
 }

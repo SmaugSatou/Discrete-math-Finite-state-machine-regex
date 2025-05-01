@@ -1,8 +1,5 @@
 #include <stdexcept>
 #include <unordered_set>
-#include <vector>
-#include <memory>
-#include <cctype>
 
 #include "RegexFSM.h"
 
@@ -11,17 +8,18 @@ void RegexFSM::initializeRegex(const std::string& regex) {
 
     this->startingState = std::make_shared<StartState>();
 
-    std::vector<std::shared_ptr<State>> states = {startingState};
+    std::vector<std::shared_ptr<State>> states(regexSize + 2); 
+    states.front() = this->startingState;
 
     for (int index = 0; index < regexSize; ++index) {
-        states.push_back(this->parseNewState(regex[index]));
+        states[index + 1] = this->parseNewState(regex[index]);
     }
 
-
     std::shared_ptr<TerminationState> endingState = std::make_shared<TerminationState>();
-    states.back()->addNextState(endingState);
 
-    states.push_back(endingState);
+    states[regexSize]->addNextState(endingState);
+
+    states.back() = (endingState);
 
     this->connectStates(states);
 }
