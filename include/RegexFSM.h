@@ -3,7 +3,7 @@
 #include <string>
 #include <memory>
 
-#include "include/states.h"
+#include "states.h"
 
 
 /**
@@ -29,7 +29,27 @@ private:
 	*
 	* @param regexExpression The regular expression to parse.
 	*/
-	void initializeRegex(const std::string&);
+	void initializeRegex(const std::string& regex);
+
+	/**
+	* @brief Creates and returns a new State based on the specified operation.
+	*
+	* @param operation A character representing the operation to parse and create a new State.
+	*
+	* @return A shared pointer to the newly created State.
+	*/
+	std::shared_ptr<State> parseNewState(const char& operation);
+
+	/**
+	* @brief Connects a sequence of states.
+	*
+	* This function accepts a list of states and connects them in the specified order.
+	* The exact connection mechanism depends on the implementation of the State class.
+	* This operation may modify the states or their relationships as required by the system.
+	*
+	* @param states A vector of shared pointers to the states that need to be connected.
+	*/
+	void connectStates(const std::vector<std::shared_ptr<State>>& states);
 
 public:
 
@@ -46,5 +66,5 @@ public:
 	* @param input The input string to evaluate.
 	* @return true if the input matches the regex pattern; otherwise, false.
 	*/
-	bool checkString(const std::string) const;
+	bool checkString(const std::string& input) const;
 };

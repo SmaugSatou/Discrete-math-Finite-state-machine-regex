@@ -15,7 +15,7 @@
 * @class State
 * @brief Base class for all finite automaton states.
 */
-class State : public std::enable_shared_from_this<State> {
+class State {
 private:
 	std::vector<std::shared_ptr<State>> nextStates;
 
@@ -24,34 +24,41 @@ public:
 	virtual ~State() = default;
 
 	/// @brief Checks whether the current state accepts a given symbol.
-	virtual bool checkSelf(const char symbol) const = 0;
+	virtual bool checkSelf(const char symbol) const;
 
 	/// @brief Returns all valid next states that accept the given symbol.
 	virtual std::vector<std::shared_ptr<State>> checkNext(const char symbol) const;
 
 	/// @brief Adds a transition to another state.
 	void addNextState(std::shared_ptr<State> state);
+
+	/// @brief Returns a vector of next states.
+	std::vector<std::shared_ptr<State>> getNextStates() const;
 };
 
 /**
 * @class StartState
 * @brief Starting state of the automaton.
 */
-class StartState : public State {
-public:
-	virtual ~StartState() = default;
-	bool checkSelf(const char symbol) const override;
-};
+class StartState : public State {};
 
 /**
 * @class TerminationState
 * @brief Ending state of the automaton.
 */
-class TerminationState : public State {
-public:
-	virtual ~TerminationState() = default;
-	bool checkSelf(const char symbol) const override;
-};
+class TerminationState : public State {};
+
+/**
+* @class StarState
+* @brief Star state-util of the automaton.
+*/
+class StarState : public State {};
+
+/**
+* @class PlusState
+* @brief Plus state-util of the automaton.
+*/
+class PlusState : public State {};
 
 /**
 * @class DotState
@@ -59,7 +66,6 @@ public:
 */
 class DotState : public State {
 public:
-	virtual ~DotState() = default;
 	bool checkSelf(const char symbol) const override;
 };
 
@@ -73,32 +79,6 @@ private:
 
 public:
 	AsciiState(const char symbol);
-	virtual ~AsciiState() = default;
+
 	bool checkSelf(const char symbol) const override;
-};
-
-/**
-* @class StarState
-* @brief Matches 0 or more occurrences of the checking states.
-*/
-class StarState : public State {
-private:
-	std::vector<std::shared_ptr<State>> checkingStates;
-
-public:
-	StarState(const std::vector<std::shared_ptr<State>>& checkingStates);
-	virtual ~StarState() = default;
-};
-
-/**
-* @class PlusState
-* @brief Matches 1 or more occurrences of the checking states.
-*/
-class PlusState : public State {
-private:
-	std::vector<std::shared_ptr<State>> checkingStates;
-
-public:
-	PlusState(const std::vector<std::shared_ptr<State>>& checkingStates);
-	virtual ~PlusState() = default;
 };
