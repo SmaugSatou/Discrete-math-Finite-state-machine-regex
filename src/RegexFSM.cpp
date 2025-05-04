@@ -4,22 +4,39 @@
 #include "RegexFSM.h"
 
 void RegexFSM::initializeRegex(const std::string& regex) {
-    int regexSize = regex.size();
+    size_t regexSize = regex.size();
 
     this->startingState = std::make_shared<StartState>();
 
-    std::vector<std::shared_ptr<State>> states(regexSize + 2); 
-    states.front() = this->startingState;
+    std::vector<std::shared_ptr<State>> states = { startingState };
 
-    for (int index = 0; index < regexSize; ++index) {
-        states[index + 1] = this->parseNewState(regex[index]);
+    for (size_t index = 0; index < regexSize; ++index) {
+        char current = regex[index];
+
+        if (current == '*') {
+            if (states.size() < 2) throw std::runtime_error("Nothing to repeat with '*'");
+            states[states.size() - 1]->markStar();
+            continue;
+        }
+        else if (current == '+') {
+            if (states.size() < 2) throw std::runtime_error("Nothing to repeat with '+'");
+            states[states.size() - 1]->markPlus();
+            continue;
+        }
+
+        if (current == '[') {
+            states.push_back(this->parseClassState(regex, index));
+        }
+        else {
+            states.push_back(this->parseNewState(current));
+        }
     }
 
+
     std::shared_ptr<TerminationState> endingState = std::make_shared<TerminationState>();
+    states.back()->addNextState(endingState);
 
-    states[regexSize]->addNextState(endingState);
-
-    states.back() = (endingState);
+    states.push_back(endingState);
 
     this->connectStates(states);
 }
@@ -32,19 +49,49 @@ std::shared_ptr<State> RegexFSM::parseNewState(const char& operation) {
     switch (operation) {
     case '.':
         return std::make_shared<DotState>();
-    case '*':
-        return std::make_shared<StarState>();
-    case '+':
-        return std::make_shared<PlusState>();
+    case '[':
+        throw std::runtime_error("Unexpected '[' in parseNewState");
     default:
         throw std::runtime_error("Invalid operation in regex!");
     }
 }
 
-void RegexFSM::connectStates(const std::vector<std::shared_ptr<State>>& states) {
-    int statesNumber = states.size();
+std::shared_ptr<State> RegexFSM::parseClassState(const std::string& regex, size_t& index) {
+    std::vector<std::shared_ptr<State>> classStates;
+    bool isNegated = false;
 
-    int index = 1;
+    ++index;
+
+    if (regex[index] == '^') {
+        isNegated = true;
+        ++index;
+    }
+
+    while (index < regex.size() && regex[index] != ']') {
+        if (index + 2 < regex.size() && regex[index + 1] == '-') {
+            char start = regex[index];
+            char end = regex[index + 2];
+            std::vector<std::pair<int, int>> ranges = { {start, end} };
+            classStates.push_back(std::make_shared<AsciiRangeState>(ranges, false));
+            index += 3;
+        }
+        else {
+            classStates.push_back(std::make_shared<AsciiState>(regex[index]));
+            ++index;
+        }
+    }
+
+    if (index >= regex.size() || regex[index] != ']') {
+        throw std::runtime_error("Unterminated character class in regex");
+    }
+
+    return std::make_shared<ClassState>(classStates, isNegated);
+}
+
+void RegexFSM::connectStates(const std::vector<std::shared_ptr<State>>& states) {
+    size_t statesNumber = states.size();
+
+    size_t index = 1;
 
     while (index < statesNumber - 1) {
         std::shared_ptr<State> currState = states[index];
@@ -52,22 +99,15 @@ void RegexFSM::connectStates(const std::vector<std::shared_ptr<State>>& states) 
         std::shared_ptr<State> nextState = states[index + 1];
 
 
-        if (std::dynamic_pointer_cast<StarState>(currState)) {
-            if (index - 2 >= 0) {
-                std::shared_ptr<State> prevPrevState = states[index - 2];
-                prevPrevState->addNextState(nextState);
-            }
+        if (currState->getStar()) {
+            currState->addNextState(currState);
+            prevState->addNextState(nextState);
+        }
+        else if (currState->getPlus()) {
+            currState->addNextState(currState);
+        }
 
-            prevState->addNextState(prevState);
-            prevState->addNextState(nextState);
-        }
-        else if (std::dynamic_pointer_cast<PlusState>(currState)) {
-            prevState->addNextState(prevState);
-            prevState->addNextState(nextState);
-        }
-        else {
-            prevState->addNextState(currState);
-        }
+        prevState->addNextState(currState);
 
         index++;
     }

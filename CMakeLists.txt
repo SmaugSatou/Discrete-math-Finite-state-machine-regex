@@ -7,4 +7,4 @@ include_directories(include)
 
 file(GLOB SOURCES src/*.cpp)
 
-add_executable(main main.cpp ${SOURCES})
+add_executable(regex_fsm main.cpp ${SOURCES})

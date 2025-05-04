@@ -41,6 +41,17 @@ private:
 	std::shared_ptr<State> parseNewState(const char& operation);
 
 	/**
+	* @brief Parses a character class from the regex and constructs a ClassState.
+	*
+	* @param regex The full regex pattern.
+	* @param index A reference to the current index in the regex string; this will be updated as characters are consumed.
+	* @return A shared pointer to the constructed ClassState.
+	*
+	* @throws std::runtime_error if the class is improperly formatted or not closed.
+	*/
+	std::shared_ptr<State> RegexFSM::parseClassState(const std::string& regex, size_t& index);
+
+	/**
 	* @brief Connects a sequence of states.
 	*
 	* This function accepts a list of states and connects them in the specified order.
