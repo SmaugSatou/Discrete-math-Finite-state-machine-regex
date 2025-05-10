@@ -1,17 +1,15 @@
 #pragma once
 
+/**
+* @file RegexFSM.h
+* @brief Declares the RegexFSM class for constructing and evaluating finite state machines
+* based on a simplified regular expression syntax.
+*/
+
 #include <string>
 #include <memory>
 
 #include "states.h"
-
-
-/**
-* @file RegexFSM.h
-* @brief Declares the RegexFSM class for constructing and evaluating finite state machines
-*        based on a simplified regular expression syntax.
-*/
-
 
 /**
 * @class RegexFSM

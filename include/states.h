@@ -1,15 +1,14 @@
 #pragma once
 
-#include <vector>
-#include <memory>
-#include <unordered_set>
-
 /**
 * @file states.h
 * @brief Contains the definitions for finite automaton state classes.
 * These classes are part of a regex-like state machine engine.
 */
 
+#include <vector>
+#include <memory>
+#include <unordered_set>
 
 /**
 * @class State
@@ -95,6 +94,13 @@ public:
 	bool checkSelf(const char& symbol) const override;
 };
 
+/**
+* @class AsciiRangeState
+* @brief Matches characters within specified ASCII ranges.
+*
+* This state is used for matching characters within one or more ASCII ranges,
+* such as 'a-z' or '0-9'. It can also be negated to match characters outside these ranges.
+*/
 class AsciiRangeState : public State {
 private:
 	bool isNegated;

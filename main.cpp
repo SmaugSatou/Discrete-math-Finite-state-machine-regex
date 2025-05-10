@@ -1,3 +1,8 @@
+/**
+ * @file main.cpp
+ * @brief Main entry point for the regex matching utility
+ * @ingroup RegexUtility
+ */
 
 #include <iostream>
 

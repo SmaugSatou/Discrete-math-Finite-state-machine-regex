@@ -1,3 +1,9 @@
+/**
+ * @file RegexFSM.cpp
+ * @brief Implements the Regex Finite State Machine
+ * @ingroup RegexImplementation
+ */
+
 #include <stdexcept>
 #include <unordered_set>
 
